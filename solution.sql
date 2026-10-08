@@ -20,7 +20,8 @@ GROUP BY
 SELECT *
 FROM customer_rental_summary;
 
-Step 2: Create the temporary table
+-- Step 2: Create temporary table with total paid per customer
+
 DROP TEMPORARY TABLE IF EXISTS customer_payment_summary;
 
 CREATE TEMPORARY TABLE customer_payment_summary AS
@@ -28,8 +29,10 @@ SELECT
     crs.customer_id,
     COALESCE(SUM(p.amount), 0) AS total_paid
 FROM customer_rental_summary crs
+LEFT JOIN rental r
+    ON crs.customer_id = r.customer_id
 LEFT JOIN payment p
-    ON crs.customer_id = p.customer_id
+    ON r.rental_id = p.rental_id
 GROUP BY crs.customer_id;
 
 -- Step 3: CTE + final customer summary report
